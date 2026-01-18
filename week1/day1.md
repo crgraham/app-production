@@ -203,3 +203,19 @@ You've successfully deployed your first API to production! Your API is now:
 ### Need Help?
 - Check Vercel's documentation: [https://vercel.com/docs](https://vercel.com/docs)
 - Ask in class or post in the course forum
+  
+### Summary
+Step 1: Sign up for Vercel. This matters because Vercel is the hosting platform you’re deploying onto; without an account you can’t create a project, get a deployment URL, or manage deployments/keys/logs. Picking “Hobby” is just the free-tier choice; GitHub signup is recommended mainly because it makes future “deploy from repo” workflows smoother, even though this tutorial uses the CLI.
+
+Step 2: Install Cursor + create the “instant” folder. Cursor is just the editor; the important part is creating a clean project directory where your three deployment-critical files live together. This avoids the #1 beginner failure: running vercel from the wrong folder and deploying something else by accident.
+
+Step 3: Create instant.py (FastAPI app). This is your actual web service. app = FastAPI() creates the ASGI app object, and @app.get("/") declares a route so you can hit / and get a response. It’s a deliberately tiny “health check” endpoint to prove the whole request → server → response path works end-to-end.
+
+Step 4: Create requirements.txt. This is how Vercel knows what Python dependencies to install when it builds your serverless function. If fastapi isn’t listed, the build will fail. uvicorn is included because it’s the common dev server for running FastAPI locally; Vercel won’t necessarily run uvicorn directly, but keeping it here is fine for local testing and avoids confusion later.
+
+Step 5: Create vercel.json. This is the glue that tells Vercel (a) “treat instant.py as a Python serverless entrypoint” (@vercel/python) and (b) “send all incoming routes to that file” (/(.*) → instant.py). Without this, Vercel won’t know which file to deploy or how to route requests, and you’ll typically get 404s or a build that doesn’t expose your API.
+
+Step 6: Install Node.js (and npm). This matters because the Vercel CLI is a Node tool; you need Node/npm to install and run it. Using a version manager (nvm) matters because it prevents “my system node is old/broken” problems and makes upgrades/reverts painless. Verifying node --version and npm --version is a quick sanity check that your terminal can actually see the installs (PATH correctness).
+
+Step 7: Deploy with the Vercel CLI. Opening a terminal inside Cursor is convenience; the important part is you’re in the project folder when running commands. npm install -g vercel installs the CLI globally so vercel is available as a command. vercel login links your local CLI to your Vercel account (auth). vercel . deploys the current directory: the prompts create a new project, choose which account/team (“scope”) owns it, set the project name, and confirm the code directory. The final URL test is crucial because it confirms the deployed function is reachable publicly, routing works, dependencies installed, and FastAPI is responding.
+Troubleshooting section: it’s basically a checklist of the common failure points in each stage: CLI not on PATH (vercel: command not found), runtime mismatch (Python versions), missing files or wrong working directory (deployment fails). The reason this section is important is that these are environmental/deployment issues, not “your code is wrong” issues, and they’re what usually block people on day one.
